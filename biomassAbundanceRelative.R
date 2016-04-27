@@ -1,4 +1,4 @@
-# need to learn scripting, this is not using R
+# need to find a way to automate
 
 library(ggplot2)
 library(reshape)

@@ -21,28 +21,30 @@ functionalGroupSeparator <- function(dataFrame) {
   return(splitFrames)
 }
  
-bunchOfData <- lapply(data_list, functionalGroupSeparator)
+listOfDisaggregatedLists <- lapply(data_list, functionalGroupSeparator)
 
 test <- functionalGroupSeparator(data_list[[1]])
 head(test[[2]])
 
 classes <- length(levels(data_list[[1]]$class.))
-replicates <- length(bunchOfData)
-nestList <- vector("list", classes)
-largeList <- vector("list", replicates)
+replicates <- length(listOfDisaggregatedLists)
+nestList <- vector("list", replicates)
+largeList <- list() # must have length classes
 
-##### to be continued. loop is probably not the best idea ever
-
-for (i in 1:replicates) {
-  
+for (i in 1:classes) { # loop to initiate list of lists. one instance of nestList is attributed to each element of largelist
+  largeList[[i]] <- nestList
 }
 
+# now actual loop
 
- for (i in 1:length(bunchOfData)) {
-   for (j in 1:classes) {
-     newList[[j]] <- bunchOfData[[i]][[j]] 
-   }
- }
+for (j in 1:classes) {
+  for (k in 1:replicates) {
+    for (l in 1:classes) {
+    largeList[[l]][[k]] <- listOfDisaggregatedLists[[k]][[l]]
+    }
+  }
+}
 
+# now spectra routines must be applied to averages
 
 

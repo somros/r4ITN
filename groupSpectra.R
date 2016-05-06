@@ -1,11 +1,13 @@
 # script for size spectra disaggregated on the functional groups
 # 29.04.2016. Alberto Rovellini, Victoria University of Wellington
 
+# update 6.05.2016: lack of levels when functional groups go extinct will be an issue to fix
+
 require(abind)
 require(plyr)
 require(ggplot2)
-setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/demo")
-list<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/demo",
+setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/U/i3")
+list<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/U/i3",
                 recursive=TRUE, pattern="*.csv")
 length.list<-length(list)
 read.special<-function(x) {
@@ -28,14 +30,16 @@ listOfDisaggregatedLists <- lapply(data_list, functionalGroupSeparator)
 
 test <- functionalGroupSeparator(data_list[[1]])
 head(test[[2]])
+emptyFrame <- head(largeList[[2]][[7]])
+
 
 classes <- length(levels(data_list[[1]]$class.))
 replicates <- length(listOfDisaggregatedLists)
 nestList <- vector("list", replicates)
-largeList <- list() # must have length classes
+largeListtmp <- list() # must have length classes
 
 for (i in 1:classes) { # loop to initiate list of lists. one instance of nestList is attributed to each element of largelist
-  largeList[[i]] <- nestList
+  largeListtmp[[i]] <- nestList
 }
 
 # now actual loop
@@ -43,10 +47,32 @@ for (i in 1:classes) { # loop to initiate list of lists. one instance of nestLis
 for (j in 1:classes) {
   for (k in 1:replicates) {
     for (l in 1:classes) {
-    largeList[[l]][[k]] <- listOfDisaggregatedLists[[k]][[l]]
+    largeListtmp[[l]][[k]] <- listOfDisaggregatedLists[[k]][[l]]
     }
   }
 }
+
+# need to assign NAs to empty frames!
+
+for (i in 1:classes) { # loop to initiate list of lists. one instance of nestList is attributed to each element of largelist
+  largeList[[i]] <- nestList
+}
+
+
+for (j in 1:classes) {
+  for (k in 1:replicates) {
+    for (l in 1:classes) {
+      if (nrow(largeListtmp[[l]][[k]])==0) {
+        largeList[[l]][[k]] <- as.data.frame(matrix(rep(0, length(largeListtmp[[l]][[k]])), 
+                                                    nrow = 1, ncol = length(largeListtmp[[l]][[k]]), 
+                                                    dimnames = list("row1", names(largeListtmp[[l]][[k]]))))
+      } else {
+        largeList[[l]][[k]] <- largeListtmp[[l]][[k]]  
+      }
+    }
+  }
+}
+
 
 # function to detect the highest biomass for each functional group across all the replicates
 
@@ -64,6 +90,8 @@ maxBins <- data.frame(funGroupsNames, unlist(lapply(largeList, highestBiomass)))
 colnames(maxBins) <- c("funGroup", "maxBiomass")
 
 # modify spectra calculator to dynamically apply the correct bin to the correct class
+
+## binning won't work because of the length, NA isn't fine, 0 isn't fine either, seq is weak and not flexible
 
 frequencies <-function(data) { # function to extract the frequencies for each replicate
   mass <- data$biomass # isolates the column with biomass. infact, no need to factorize if the spectrum is for the whole
@@ -127,13 +155,13 @@ continuousSpectrum$funGroup <- factor(continuousSpectrum$funGroup, levels = uniq
 plotFNSpectrum <- ggplot(data=continuousSpectrum[!is.na(continuousSpectrum$logAbundance),], 
                          aes(x=logWeight, y=logAbundance, group=funGroup))+
   #geom_point(aes(shape=funGroup))+
-  geom_line(aes(colour=funGroup))+
-  scale_x_continuous(name="log(weight bin [100g])", 
+  geom_line(aes(colour=funGroup), size=1)+
+  scale_x_continuous(name="log(weight)", 
                      limits=c(3,10),
-                     breaks=seq(3,10,.5))+
+                     breaks=seq(3,10,1))+
   scale_y_continuous(name="log(number of individuals)", 
                      limits=c(0,10),
-                     breaks=seq(0,10,.5))+
+                     breaks=seq(0,10,1))+
   scale_colour_manual(values = c("#377EB8", "#E41A1C", "#4DAF4A","#FF7F00","#984EA3","#999999","#F781BF"))+
   theme(panel.background = element_rect(fill = 'white'))+
   #theme
@@ -146,4 +174,7 @@ plotFNSpectrum <- ggplot(data=continuousSpectrum[!is.na(continuousSpectrum$logAb
   theme(axis.text.x=element_text(size=10))+
   theme(axis.text.y=element_text(size=10))
 plotFNSpectrum
+
+ggsave("/home/somros/Documents/ITNFollowUp/picsWP/alternativeBroder/U_I3.pdf", 
+       plotFNSpectrum, useDingbats=FALSE)
 

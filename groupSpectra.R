@@ -54,6 +54,7 @@ for (j in 1:classes) {
 
 # need to assign NAs to empty frames!
 
+largeList <- list()
 for (i in 1:classes) { # loop to initiate list of lists. one instance of nestList is attributed to each element of largelist
   largeList[[i]] <- nestList
 }
@@ -63,15 +64,22 @@ for (j in 1:classes) {
   for (k in 1:replicates) {
     for (l in 1:classes) {
       if (nrow(largeListtmp[[l]][[k]])==0) {
-        largeList[[l]][[k]] <- as.data.frame(matrix(rep(0, length(largeListtmp[[l]][[k]])), 
-                                                    nrow = 1, ncol = length(largeListtmp[[l]][[k]]), 
-                                                    dimnames = list("row1", names(largeListtmp[[l]][[k]]))))
+        largeList[[l]][[k]] <- NA
       } else {
         largeList[[l]][[k]] <- largeListtmp[[l]][[k]]  
       }
     }
   }
 }
+
+# as.data.frame(matrix(rep(0, length(largeListtmp[[l]][[k]])),
+#                      nrow = 1, ncol = length(largeListtmp[[l]][[k]]),
+#                      dimnames = list("row1", names(largeListtmp[[l]][[k]]))))
+
+largeListFinal <- lapply(largeList, function(subList) {
+  subList[is.na(subList)] <- NULL
+  return(subList)
+})
 
 
 # function to detect the highest biomass for each functional group across all the replicates
@@ -86,12 +94,14 @@ highestBiomass <- function(listOfReplicates) {
   return(maxBFunGroup)
 }
 
-maxBins <- data.frame(funGroupsNames, unlist(lapply(largeList, highestBiomass)))
+maxBins <- data.frame(funGroupsNames, unlist(lapply(largeListFinal, highestBiomass))) 
 colnames(maxBins) <- c("funGroup", "maxBiomass")
 
 # modify spectra calculator to dynamically apply the correct bin to the correct class
 
 ## binning won't work because of the length, NA isn't fine, 0 isn't fine either, seq is weak and not flexible
+# binning won't work because in some frames there's no functional group and the function does not know where to
+# take the information from. only meaningful solution is to drop the empty entries from the list!!!
 
 frequencies <-function(data) { # function to extract the frequencies for each replicate
   mass <- data$biomass # isolates the column with biomass. infact, no need to factorize if the spectrum is for the whole
@@ -111,7 +121,7 @@ frequencies <-function(data) { # function to extract the frequencies for each re
   
 }
 
-disaggregatedFreqList <- lapply(largeList, function(subList) lapply(subList, frequencies))
+disaggregatedFreqList <- lapply(largeListFinal, function(subList) lapply(subList, frequencies))
 
 # frameLengths <- lapply(disaggregatedFreqList, function(subList) lapply(subList, nrow))
 

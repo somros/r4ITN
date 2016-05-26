@@ -4,15 +4,15 @@
 library(ggplot2)
 library(abind)
 library(reshape2)
-setwd("/home/somros/Documents/itn100results/input/sizeSpectrumInput50")
+setwd("/home/somros/Documents/itn100results/input/sizeSpectrumInput100")
 
 base <- read.table("base.csv", header=TRUE, sep=' ', dec='.')
-U_I2 <- read.table("U_i2.csv", header=TRUE, sep=' ', dec='.')
-U_I3 <- read.table("U_i3.csv", header=TRUE, sep=' ', dec='.')
-S500_I2 <- read.table("S500_i2.csv", header=TRUE, sep=' ', dec='.')
-S500_I3 <- read.table("S500_i3.csv", header=TRUE, sep=' ', dec='.')
-S250_I2 <- read.table("S250_i2.csv", header=TRUE, sep=' ', dec='.')
-S250_I3 <- read.table("S250_i3.csv", header=TRUE, sep=' ', dec='.')
+U_I2 <- read.table("U_I2.csv", header=TRUE, sep=' ', dec='.')
+U_I3 <- read.table("U_I3.csv", header=TRUE, sep=' ', dec='.')
+S500_I2 <- read.table("S500_I2.csv", header=TRUE, sep=' ', dec='.')
+S500_I3 <- read.table("S500_I3.csv", header=TRUE, sep=' ', dec='.')
+S250_I2 <- read.table("S250_I2.csv", header=TRUE, sep=' ', dec='.')
+S250_I3 <- read.table("S250_I3.csv", header=TRUE, sep=' ', dec='.')
 
 dataList <- list(base, U_I2, U_I3, S500_I2, S500_I3, S250_I2, S250_I3)
 longest <- max(unlist(lapply(dataList, nrow)))
@@ -36,18 +36,23 @@ meltComplete <- melt(complete, id.vars = "logBins", variable.name = "Regime", va
 # levels(factor(ensemble$dom)) # check which level is missing and remove it from the plot aesthetics
 # ensemble$ln_bin <- log(1:nrow(ensemble))
 
+library(RColorBrewer)
+par(mar = c(0, 4, 0, 0))
+display.brewer.all()
+doublePalette <- brewer.pal(9, "YlOrRd")
+myPalette <- doublePalette[seq(3,length(doublePalette),2)]
 
 spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I3" |
                                      Regime=="S500_I3" | Regime=="S250_I3"),
                        aes(x=logBins, y=Frequency, group=Regime))+
-  geom_line(aes(linetype=Regime, color=Regime))+
-  scale_x_continuous(name="log(weigth bin [50g])", 
+  geom_line(aes(linetype=Regime, color=Regime), size=.7)+
+  scale_x_continuous(name="ln(# weigth bin [100g])", 
                      limits=c(0,6),
                      breaks=seq(0,6,1))+
-  scale_y_continuous(name="log(number of individuals)", 
+  scale_y_continuous(name="ln(number of individuals)", 
                      limits=c(0,12),
                      breaks=seq(0,12,1))+
-  scale_color_manual(values=c("#000000", "#525252", "#737373", "#BDBDBD"))+
+  scale_color_manual(values=myPalette)+
   scale_linetype_manual(values=c("solid", "dashed", "dotted", "longdash"))+
   #guides(linetype = guide_legend(override.aes = list(size=5)))+
   #labs(title="Community weight spectrum")+
@@ -65,7 +70,7 @@ spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I3"
 
 spectrumPlot
 
-ggsave("/home/somros/Documents/ITNFollowUp/picsWP/sizeSpectraLineI3Bins.pdf", spectrumPlot, useDingbats=FALSE ) # set better res pls
+ggsave("/home/somros/Documents/paperFishAndFisheries/pics/sizeSpectraLineI3Bins.pdf", spectrumPlot, useDingbats=FALSE ) # set better res pls
 
 
 

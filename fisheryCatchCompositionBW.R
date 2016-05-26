@@ -3,8 +3,8 @@
 
 library(ggplot2)
 library(reshape)
-setwd("/home/somros/Documents/itn100results/size500_i3/fish")
-list<-list.files("/home/somros/Documents/itn100results/size500_i3/fish", 
+setwd("/home/somros/Documents/itn100results/unselective_i2/fish")
+list<-list.files("/home/somros/Documents/itn100results/unselective_i2/fish", 
                  recursive=TRUE, pattern=".csv*") # lists all the file (might need to change to .csv)
 length.list<-length(list)
 read.special<-function(x) {
@@ -53,10 +53,20 @@ runOne <- total[[1]]
 meltOne <- melt(runOne, id.vars="Event")
 trick<-expression(seq(0,7,0.5))
 
+# for greys
+
 library(RColorBrewer)
 par(mar = c(0, 4, 0, 0))
 display.brewer.all()
 brewer.pal(9, "Greys")
+
+# for color to grey
+
+library(RColorBrewer)
+par(mar = c(0, 4, 0, 0))
+display.brewer.all()
+doublePalette <- brewer.pal(9, "YlOrRd")
+myPalette <- doublePalette[seq(3,length(doublePalette),1)]
 
 
 p<-ggplot(subset(meltAll,variable=="Smallpelagic" | variable=="Mediumpelagic" | 
@@ -65,14 +75,14 @@ p<-ggplot(subset(meltAll,variable=="Smallpelagic" | variable=="Mediumpelagic" |
                          variable== "Topcarnivore"), aes(x=Event, y=value, fill=variable))+
         geom_area(aes(fill=variable), position='stack', alpha=0.9)+ 
         labs(x="Years", 
-             y="Catch [t]")+
-        scale_x_continuous("Years", breaks=seq(0,20,2),
-                           limits=c(0,21), labels=seq(0,20,2), expand=c(0,0))+
+             y="Catch (t)")+
+        scale_x_continuous("Years", breaks=seq(0,20,5),
+                           limits=c(0,21), labels=seq(0,20,5), expand=c(0,0))+
         scale_y_continuous(limits=c(0,7000000),
                            breaks=seq(0,7000000,1000000), 
                            expand=c(0,0), labels=seq(0,7,1))+
         scale_fill_manual(name="Functional groups",
-                            values=c("#F0F0F0", "#BDBDBD", "#969696", "#737373", "#525252", "#252525", "#000000"),
+                            values=myPalette,
                             labels=c("Small pelagic", "Medium pelagic", "Large pelagic", "Small demersal",
                                      "Medium demersal", "Large demersals", "Top carnivores"))+
         #guides(colour = guide_legend(override.aes = list(size=5)))+
@@ -90,5 +100,5 @@ p<-ggplot(subset(meltAll,variable=="Smallpelagic" | variable=="Mediumpelagic" |
         theme(axis.text.y=element_text(size=10))
 p
 
-ggsave("/home/somros/Documents/ITNFollowUp/picsWP/compS500.pdf", p, useDingbats=FALSE ) # set better res pls
+ggsave("/home/somros/Documents/paperFishAndFisheries/pics/fishery/compUI2.pdf", p, useDingbats=FALSE ) # set better res pls
 

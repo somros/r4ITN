@@ -34,7 +34,7 @@ sdAll<-as.data.frame(sdAll) # same
 meanAll[,c(2:length(meanAll))] <- meanAll[,c(2:length(meanAll))] + 1 # workaround for the log scale (either this or NAs, no big difference)
 
 normal_scientific<-expression(0,10,10^2,10^3,10^4,10^5) # notation to be used in the plot
-years <- seq(0,40,1)
+years <- seq(0,40,5)
 
 
 meltMean <- melt(meanAll, id.vars = "Time", variable.name="variable", value.name="value")
@@ -42,21 +42,28 @@ meltSd <- melt(sdAll, id.vars = "Time", variable.name="variable", value.name="va
 complete <- data.frame(meltMean, meltSd[,3])
 colnames(complete) <- c("time", "class", "mean", "sd")
 
+library(RColorBrewer)
+par(mar = c(0, 4, 0, 0))
+display.brewer.all()
+doublePalette <- brewer.pal(3, "YlOrRd")
+
 # 2-tailed ribbon causes troubles for zero values due to log scale. use with caution
 
 ribbonBiomass <- ggplot(complete, aes(x=time, y=mean, group=class))+
-  geom_line(aes(linetype=class, colour=class))+
+  geom_line(aes(linetype=class, colour=class), size=.7)+
   labs(#title = "Population dynamics of the community", 
     x="Time steps", 
     y="Abundance [individuals]")+
   scale_x_continuous("t [years]", limits = c(0,2000),
-                   breaks=seq(0,2000,by=50), labels=years, expand=c(0,0)) +
+                   breaks=seq(0,2000,by=250), labels=years, expand=c(0,0)) +
   scale_y_continuous(name="Biomass [kg]", 
                      limits=c(1000,100000000),
                      breaks=c(1000,10000,100000,1000000,10000000,100000000), 
                      expand=c(0,0), labels=normal_scientific)+
   scale_colour_manual(name="Functional group",
-                      values=c(c(c(rep("black", 3), rep("#737373",3)), "gray")),
+                      values=c(c(c(rep(doublePalette[3], 3), 
+                                   rep(doublePalette[2],3)), 
+                                 doublePalette[1])),
                       labels=c("Small pelagic", "Medium pelagic", "Large pelagic", "Small demersal",
                                "Medium demersal", "Large demersals", "Top piscivores"))+
   scale_linetype_manual(name="Functional group",

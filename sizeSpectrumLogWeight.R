@@ -68,16 +68,22 @@ spectrumPlot
 
 #ggsave("/home/somros/Documents/ITNFollowUp/picsWP/sizeSpectrum/bin100/logWeight/sizeSpectraLineI3.pdf", spectrumPlot, useDingbats=FALSE ) # set better res pls
 
+library(RColorBrewer)
+par(mar = c(0, 4, 0, 0))
+display.brewer.all()
+doublePalette <- brewer.pal(9, "YlOrRd")
+myPalette <- doublePalette[seq(3,length(doublePalette),2)]
+
 linearRegression <- ggplot(data = plotData,
                        aes(x=logWeights, y=Frequency, group=Regime))+
   geom_ribbon(data=plotData[!is.na(plotData$Frequency),], aes(linetype=NULL, color=NULL),
               stat = "smooth", method = "lm", alpha=.1)+
   geom_line(data=plotData[!is.na(plotData$Frequency),], aes(linetype=Regime, color=Regime),
             stat = "smooth", method = "lm")+
-  scale_x_continuous(name="log(weight bin [100g])", 
+  scale_x_continuous(name="ln(weight bin [100g])", 
                      limits=c(0,11),
                      breaks=seq(0,11,1))+
-  scale_y_continuous(name="log(number of individuals)", 
+  scale_y_continuous(name="ln(number of individuals)", 
                      limits=c(0,14),
                      breaks=seq(0,14,1))+
   scale_color_manual(values=rep("black", 4))+

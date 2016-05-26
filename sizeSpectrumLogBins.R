@@ -37,8 +37,8 @@ meltComplete <- melt(complete, id.vars = "logBins", variable.name = "Regime", va
 # ensemble$ln_bin <- log(1:nrow(ensemble))
 
 
-spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I2" |
-                                     Regime=="S500_I2" | Regime=="S250_I2"),
+spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I3" |
+                                     Regime=="S500_I3" | Regime=="S250_I3"),
                        aes(x=logBins, y=Frequency, group=Regime))+
   geom_line(aes(linetype=Regime, color=Regime))+
   scale_x_continuous(name="log(weigth bin [50g])", 
@@ -65,7 +65,7 @@ spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I2"
 
 spectrumPlot
 
-ggsave("/home/somros/Documents/ITNFollowUp/picsWP/sizeSpectraLineI2.pdf", spectrumPlot, useDingbats=FALSE ) # set better res pls
+ggsave("/home/somros/Documents/ITNFollowUp/picsWP/sizeSpectraLineI3Bins.pdf", spectrumPlot, useDingbats=FALSE ) # set better res pls
 
 
 

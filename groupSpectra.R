@@ -1,13 +1,12 @@
 # script for size spectra disaggregated on the functional groups
 # 29.04.2016. Alberto Rovellini, Victoria University of Wellington
 
-# update 6.05.2016: lack of levels when functional groups go extinct will be an issue to fix
 
 require(abind)
 require(plyr)
 require(ggplot2)
-setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/U/i3")
-list<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/U/i3",
+setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/S500/i3")
+list<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/S500/i3",
                 recursive=TRUE, pattern="*.csv")
 length.list<-length(list)
 read.special<-function(x) {
@@ -18,7 +17,8 @@ funGroupsNames <- c("smallpelagic", "mediumpelagic", "largepelagic", "smalldemer
                     "mediumdemersal", "largedemersal", "topcarnivores")
 
 
-functionalGroupSeparator <- function(dataFrame) { # for some reason some go in alphabetical
+
+functionalGroupSeparator <- function(dataFrame) { 
   dataFrame$class. <- as.character(dataFrame$class.)
   dataFrame$class. <- factor(dataFrame$class., levels = funGroupsNames)
   splitFrames <- split(dataFrame, dataFrame$class.)
@@ -28,12 +28,12 @@ functionalGroupSeparator <- function(dataFrame) { # for some reason some go in a
 
 listOfDisaggregatedLists <- lapply(data_list, functionalGroupSeparator)
 
-test <- functionalGroupSeparator(data_list[[1]])
-head(test[[2]])
-emptyFrame <- head(largeList[[2]][[7]])
+# test <- functionalGroupSeparator(data_list[[1]])
+# head(test[[2]])
+# emptyFrame <- head(largeList[[2]][[7]])
 
 
-classes <- length(levels(data_list[[1]]$class.))
+classes <- length(funGroupsNames) # 
 replicates <- length(listOfDisaggregatedLists)
 nestList <- vector("list", replicates)
 largeListtmp <- list() # must have length classes
@@ -99,9 +99,6 @@ colnames(maxBins) <- c("funGroup", "maxBiomass")
 
 # modify spectra calculator to dynamically apply the correct bin to the correct class
 
-## binning won't work because of the length, NA isn't fine, 0 isn't fine either, seq is weak and not flexible
-# binning won't work because in some frames there's no functional group and the function does not know where to
-# take the information from. only meaningful solution is to drop the empty entries from the list!!!
 
 frequencies <-function(data) { # function to extract the frequencies for each replicate
   mass <- data$biomass # isolates the column with biomass. infact, no need to factorize if the spectrum is for the whole
@@ -155,7 +152,7 @@ for (i in 1:length(listOfMatrices)) {
 
 continuousSpectrum <- as.data.frame(abind(listOfMatrices, along=1))
 
-# fix bloody classes of columns
+# fix classes of columns
 
 continuousSpectrum$logWeight <- as.numeric(levels(continuousSpectrum$logWeight))[continuousSpectrum$logWeight]
 continuousSpectrum$logAbundance <-as.numeric(levels(continuousSpectrum$logAbundance))[continuousSpectrum$logAbundance]
@@ -166,10 +163,10 @@ plotFNSpectrum <- ggplot(data=continuousSpectrum[!is.na(continuousSpectrum$logAb
                          aes(x=logWeight, y=logAbundance, group=funGroup))+
   #geom_point(aes(shape=funGroup))+
   geom_line(aes(colour=funGroup), size=1)+
-  scale_x_continuous(name="log(weight)", 
+  scale_x_continuous(name="ln(weight)", 
                      limits=c(3,10),
                      breaks=seq(3,10,1))+
-  scale_y_continuous(name="log(number of individuals)", 
+  scale_y_continuous(name="ln(number of individuals)", 
                      limits=c(0,10),
                      breaks=seq(0,10,1))+
   scale_colour_manual(values = c("#377EB8", "#E41A1C", "#4DAF4A","#FF7F00","#984EA3","#999999","#F781BF"))+
@@ -185,6 +182,6 @@ plotFNSpectrum <- ggplot(data=continuousSpectrum[!is.na(continuousSpectrum$logAb
   theme(axis.text.y=element_text(size=10))
 plotFNSpectrum
 
-ggsave("/home/somros/Documents/ITNFollowUp/picsWP/alternativeBroder/U_I3.pdf", 
+ggsave("/home/somros/Documents/ITNFollowUp/picsWP/alternativeBroder/s250.pdf", 
        plotFNSpectrum, useDingbats=FALSE)
 

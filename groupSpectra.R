@@ -5,8 +5,8 @@
 require(abind)
 require(plyr)
 require(ggplot2)
-setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/S500/i3")
-list<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/S500/i3",
+setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/S250/i3")
+list<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/S250/i3",
                 recursive=TRUE, pattern="*.csv")
 length.list<-length(list)
 read.special<-function(x) {
@@ -110,7 +110,7 @@ frequencies <-function(data) { # function to extract the frequencies for each re
   freq <- table(cat)
   freq <- cbind(freq)
   #freq[freq==0] <- NA # turn zeroes to NAs for the sake of the plot
-  freq[freq<2] <- NA # lower limit of resoulution, gets rid of the outliers
+  freq[freq<5] <- NA # lower limit of resoulution, gets rid of the outliers
   ln_freq <- log(freq) # lognorm transformation of the frequency data
   ln_length <- log(length_classes) # lognormal transformation of the length classes
   freq_breaks <- data.frame(ln_length, ln_freq)
@@ -159,6 +159,18 @@ continuousSpectrum$logAbundance <-as.numeric(levels(continuousSpectrum$logAbunda
 continuousSpectrum$sdAbundance <- as.numeric(levels(continuousSpectrum$sdAbundance))[continuousSpectrum$sdAbundance]
 continuousSpectrum$funGroup <- factor(continuousSpectrum$funGroup, levels = unique(continuousSpectrum$funGroup))
 
+library(RColorBrewer)
+par(mar = c(0, 4, 0, 0))
+display.brewer.all()
+doublePalette <- brewer.pal(9, "YlOrRd")
+myPalette <- doublePalette[seq(3,length(doublePalette),1)]
+
+# for colour key, might want to order the groups according to their dimensions.
+
+orderedGroups <- maxBins[order(maxBins$maxBiomass),][,1]
+
+continuousSpectrum$funGroup <- factor(continuousSpectrum$funGroup, levels = orderedGroups)
+
 plotFNSpectrum <- ggplot(data=continuousSpectrum[!is.na(continuousSpectrum$logAbundance),], 
                          aes(x=logWeight, y=logAbundance, group=funGroup))+
   #geom_point(aes(shape=funGroup))+
@@ -169,7 +181,7 @@ plotFNSpectrum <- ggplot(data=continuousSpectrum[!is.na(continuousSpectrum$logAb
   scale_y_continuous(name="ln(number of individuals)", 
                      limits=c(0,10),
                      breaks=seq(0,10,1))+
-  scale_colour_manual(values = c("#377EB8", "#E41A1C", "#4DAF4A","#FF7F00","#984EA3","#999999","#F781BF"))+
+  scale_colour_manual(values = myPalette)+
   theme(panel.background = element_rect(fill = 'white'))+
   #theme
   theme_bw()+
@@ -182,6 +194,6 @@ plotFNSpectrum <- ggplot(data=continuousSpectrum[!is.na(continuousSpectrum$logAb
   theme(axis.text.y=element_text(size=10))
 plotFNSpectrum
 
-ggsave("/home/somros/Documents/ITNFollowUp/picsWP/alternativeBroder/s250.pdf", 
+ggsave("/home/somros/Documents/paperFishAndFisheries/pics/disaggregatedSpectra/s250i3.pdf", 
        plotFNSpectrum, useDingbats=FALSE)
 

@@ -2,35 +2,37 @@
 
 require(abind)
 setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/spectrumMetricsTables/100")
-list<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/spectrumMetricsTables/100", 
+listOfFiles<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/spectrumMetricsTables/100", 
                  recursive=TRUE, pattern="*.csv")
+listOfFiles <- as.character(levels(factor(listOfFiles, levels = c("base.csv", "U_I2.csv", "U_I3.csv", "S500_I2.csv",
+                                                           "S500_I3.csv", "S250_I2.csv", "S250_I3.csv"))))
 
-length.list<-length(list)
+length.list<-length(listOfFiles)
 read.special<-function(x) {
   read.table(x, header=TRUE, sep=',', dec='.') # custom function to read the batches of .csv keeping the header
 }
-data_list <- lapply(list, read.special)
+dataList <- lapply(listOfFiles, read.special)
 
-baseFrame <- data_list[[1]]
+baseFrame <- dataList[[1]]
 
 # routine for the Mann-Whitney test of each metric against the baseline metrics
 
-k <- length(data_list)
-l <- length(data_list[[1]])
+k <- length(dataList)
+l <- length(dataList[[1]])
 mannWhitney <- vector(mode="list", k)
 
 
 for(i in 1:k) {
   mannWhitney[[i]] <- NaN*seq(l)
   for (j in 1:l) {
-  mannWhitney[[i]][j] <- wilcox.test(data_list[[i]][,j], data_list[[1]][,j])$p.value
+  mannWhitney[[i]][j] <- wilcox.test(dataList[[i]][,j], dataList[[1]][,j])$p.value
   }
 }
 
 pValues <- as.data.frame(abind(mannWhitney, along=0))[,-1] # p-val of MW test against base
 colnames(pValues) <- c("slope", "intercept", "slpErr", "intErr", "rsquared", "dof")
-write.csv(pValues, 
-          "/home/somros/Documents/itn100results/sizeSpectrum2000/spectrum_pValues/pValues100.csv")
+#write.csv(pValues, 
+#          "/home/somros/Documents/itn100results/sizeSpectrum2000/spectrum_pValues/pValues100.csv")
 
 # calculate mean metrics for each regime
 

@@ -3,8 +3,8 @@
 
 library(ggplot2)
 library(reshape)
-setwd("/home/somros/Documents/itn100results/unselective_i2/fish")
-list<-list.files("/home/somros/Documents/itn100results/unselective_i2/fish", 
+setwd("/home/somros/Documents/itn100results/size250_i3/fish")
+list<-list.files("/home/somros/Documents/itn100results/size250_i3/fish", 
                  recursive=TRUE, pattern=".csv*") # lists all the file (might need to change to .csv)
 length.list<-length(list)
 read.special<-function(x) {
@@ -100,5 +100,5 @@ p<-ggplot(subset(meltAll,variable=="Smallpelagic" | variable=="Mediumpelagic" |
         theme(axis.text.y=element_text(size=10))
 p
 
-ggsave("/home/somros/Documents/paperFishAndFisheries/pics/fishery/compUI2.pdf", p, useDingbats=FALSE ) # set better res pls
+ggsave("/home/somros/Documents/paperFishAndFisheries/pics/fishery/compS250I3.pdf", p, useDingbats=FALSE ) # set better res pls
 

@@ -31,8 +31,14 @@ for(i in 1:k) {
 
 pValues <- as.data.frame(abind(mannWhitney, along=0))[,-1] # p-val of MW test against base
 colnames(pValues) <- c("slope", "intercept", "slpErr", "intErr", "rsquared", "dof")
-#write.csv(pValues, 
-#          "/home/somros/Documents/itn100results/sizeSpectrum2000/spectrum_pValues/pValues100.csv")
+write.csv(pValues, 
+          "/home/somros/Documents/itn100results/sizeSpectrum2000/spectrum_pValues/pValues100.csv")
+
+
+
+
+
+
 
 # calculate mean metrics for each regime
 

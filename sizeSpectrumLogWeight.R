@@ -4,7 +4,7 @@
 library(ggplot2)
 library(abind)
 library(reshape2)
-setwd("/home/somros/Documents/itn100results/input/sizeSpectrumInput100")
+setwd("/home/somros/Documents/itn100results/input/sizeSpectrumInputLog10")
 
 base <- read.table("base.csv", header=TRUE, sep=' ', dec='.')
 U_I2 <- read.table("U_I2.csv", header=TRUE, sep=' ', dec='.')

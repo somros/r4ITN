@@ -1,8 +1,8 @@
 # 16.04.2016
 
 require(abind)
-setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/spectrumMetricsTables/100")
-listOfFiles<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/spectrumMetricsTables/100", 
+setwd("/home/somros/Documents/itn100results/sizeSpectrum2000/spectrumMetricsTables/log10")
+listOfFiles<-list.files("/home/somros/Documents/itn100results/sizeSpectrum2000/spectrumMetricsTables/log10", 
                  recursive=TRUE, pattern="*.csv")
 listOfFiles <- as.character(levels(factor(listOfFiles, levels = c("base.csv", "U_I2.csv", "U_I3.csv", "S500_I2.csv",
                                                            "S500_I3.csv", "S250_I2.csv", "S250_I3.csv"))))
@@ -32,7 +32,7 @@ for(i in 1:k) {
 pValues <- as.data.frame(abind(mannWhitney, along=0))[,-1] # p-val of MW test against base
 colnames(pValues) <- c("slope", "intercept", "slpErr", "intErr", "rsquared", "dof")
 write.csv(pValues, 
-          "/home/somros/Documents/itn100results/sizeSpectrum2000/spectrum_pValues/pValues100.csv")
+          "/home/somros/Documents/itn100results/sizeSpectrum2000/spectrum_pValues/pValuesLog10.csv")
 
 
 
@@ -43,18 +43,19 @@ write.csv(pValues,
 # calculate mean metrics for each regime
 
 colMeanAndSd <- function(x) {
+  redx <- data.frame(x$slope, x$intercept)
   sdColumns <- list()
-  for (i in 1:length(x)) {
-    sdColumns[[i]] <- sd(x[,i])
+  for (i in 1:length(redx)) {
+    sdColumns[[i]] <- sd(redx[,i])
   }
-  meanColumns <- colMeans(x)
+  meanColumns <- colMeans(redx)
   framedMetrics <- data.frame(meanColumns, as.matrix(unlist(sdColumns)))
   colnames(framedMetrics) <- c("mean", "sd")
-  framedMetricsFinal <- framedMetrics[-1,] 
+  framedMetricsFinal <- framedMetrics#[-1,] 
   return(framedMetricsFinal)
 }
 
-medie <- lapply(data_list, colMeanAndSd)
+medie <- lapply(dataList, colMeanAndSd)
 medieFrame <- abind(medie, along=2)
 write.csv(medieFrame, 
           "/home/somros/Documents/itn100results/sizeSpectrum2000/spectrum_pValues/means100.csv")

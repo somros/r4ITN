@@ -4,7 +4,7 @@
 library(ggplot2)
 library(abind)
 library(reshape2)
-setwd("/home/somros/Documents/itn100results/input/sizeSpectrumInput100")
+setwd("/home/somros/Documents/itn100results/input/sizeSpectrumInputLog")
 
 base <- read.table("base.csv", header=TRUE, sep=' ', dec='.')
 U_I2 <- read.table("U_I2.csv", header=TRUE, sep=' ', dec='.')
@@ -20,7 +20,7 @@ longest <- max(unlist(lapply(dataList, nrow)))
 toolkit <- function(x) {
   x$dom <- c(x$dom[2:length(x$dom)], NA)
   y <- as.data.frame(mapply(c, x, as.data.frame(matrix(nrow = longest-nrow(x), ncol = ncol(x))))) # din din din din
-  y$ln_bin <- log(1:nrow(y))
+  y$ln_bin <- log10(1:nrow(y))
   y <- y[,c(2,5)]
   return(y)
 }
@@ -40,18 +40,18 @@ library(RColorBrewer)
 par(mar = c(0, 4, 0, 0))
 display.brewer.all()
 doublePalette <- brewer.pal(9, "YlOrRd")
-myPalette <- doublePalette[seq(3,length(doublePalette),2)]
+myPalette <- rev(doublePalette[seq(3,length(doublePalette),2)])
 
-spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I3" |
-                                     Regime=="S500_I3" | Regime=="S250_I3"),
+spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I2" |
+                                     Regime=="S500_I2" | Regime=="S250_I2"),
                        aes(x=logBins, y=Frequency, group=Regime))+
   geom_line(aes(linetype=Regime, color=Regime), size=.7)+
-  scale_x_continuous(name="ln(# weigth bin [100g])", 
+  scale_x_continuous(name="log(# weigth bin [100g])", 
+                     limits=c(0,2.5),
+                     breaks=seq(0,2.5,.5))+
+  scale_y_continuous(name="log(number of individuals)", 
                      limits=c(0,6),
                      breaks=seq(0,6,1))+
-  scale_y_continuous(name="ln(number of individuals)", 
-                     limits=c(0,12),
-                     breaks=seq(0,12,1))+
   scale_color_manual(values=myPalette)+
   scale_linetype_manual(values=c("solid", "dashed", "dotted", "longdash"))+
   #guides(linetype = guide_legend(override.aes = list(size=5)))+
@@ -70,7 +70,7 @@ spectrumPlot <- ggplot(data=subset(meltComplete, Regime=="base" | Regime=="U_I3"
 
 spectrumPlot
 
-ggsave("/home/somros/Documents/paperFishAndFisheries/pics/sizeSpectraLineI3Bins.pdf", spectrumPlot, useDingbats=FALSE ) # set better res pls
+ggsave("/home/somros/Documents/paperFishAndFisheries/pics/spectraLog10/communitySpectra/sizeSpectraLineI2Bins.pdf", spectrumPlot, useDingbats=FALSE ) # set better res pls
 
 
 
